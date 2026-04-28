@@ -8,6 +8,8 @@ import './AdminPage.css';
 export default function AdminPage() {
   const [allMissions, setAllMissions] = useState<Record<string, Record<number, boolean>>>({});
   const [loading, setLoading] = useState(true);
+  const [password, setPassword] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, 'missions'), (querySnapshot) => {
@@ -22,6 +24,16 @@ export default function AdminPage() {
     return () => unsubscribe();
   }, []);
 
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === '0314') {
+      setIsAuthenticated(true);
+    } else {
+      alert('비밀번호가 틀렸습니다!');
+      setPassword('');
+    }
+  };
+
   const getMissionCount = (zoneId: string) => {
     const missions = allMissions[zoneId] || {};
     return Object.values(missions).filter(Boolean).length;
@@ -33,6 +45,30 @@ export default function AdminPage() {
     if (count > 0) return '#ff9800'; // In Progress
     return '#f0f0f0'; // Not Started
   };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="admin-login-container">
+        <div className="admin-login-card">
+          <h1 className="admin-title">새.포 관리자 🔒</h1>
+          <form onSubmit={handlePasswordSubmit}>
+            <input
+              type="password"
+              placeholder="비밀번호 입력"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="admin-password-input"
+              autoFocus
+            />
+            <button type="submit" className="mission-link-btn" style={{ width: '100%', marginTop: '1rem' }}>
+              접속하기
+            </button>
+          </form>
+          <Link to="/" style={{ display: 'block', marginTop: '1.5rem', color: 'var(--text-muted)' }}>홈으로 돌아가기</Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="admin-container">
