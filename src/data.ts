@@ -18,25 +18,17 @@ export interface Team {
   zones: Zone[];
 }
 
-const placeholderCells = [
-  '/cell_love_1777374680711.png',
-  '/cell_anger_1777374698408.png',
-  '/cell_hunger_1777374711546.png',
-  '/cell_joy_1777374728744.png',
-  '/cell_love_1777374680711.png',
-];
-
-const cellCharacters = [
-  { id: 1, name: '친화력세포', story: '먼저 다가가고 친해지는 걸 좋아해요!', img: '/characters/cell_1.png' },
-  { id: 2, name: '낯가림세포', story: '낯선 사람 앞엔 숨고 싶지만 마음은 착해요!', img: '/characters/cell_2.png' },
-  { id: 3, name: '열정세포', story: '시간이 지날수록 파워가 폭발해요!', img: '/characters/cell_3.png' },
-  { id: 4, name: '웃음세포', story: '분위기를 즐겁게 만들어요!', img: '/characters/cell_4.png' },
-  { id: 5, name: '단합세포', story: '사람들이 모이면 더 강해져요!', img: '/characters/cell_5.png' },
-  { id: 6, name: '눈치세포', story: '지금 이 타이밍 놓치지 않아!', img: '/characters/cell_6.png' },
-  { id: 7, name: '귀차니즘세포', story: '움직이기 싫어... 중요한 순간엔 일어나요!', img: '/characters/cell_7.png' },
-  { id: 8, name: '셋로그세포', story: '사진 각도에 진심! 기록을 예쁘게 남겨요!', img: '/characters/cell_8.png' },
-  { id: 9, name: '배려세포', story: '누구보다 먼저 챙기는 따뜻한 마음!', img: '/characters/cell_9.png' },
-  { id: 10, name: '승부욕세포', story: '1등만 보여요! 끝까지 포기하지 않아요!', img: '/characters/cell_10.png' },
+export const cellCharacters = [
+  { id: 1, name: '친화력세포', story: '먼저 다가가고 친해지는 걸 좋아해요!', mission: '다른 팀원 3명과 하이파이브 영상 찍기!', img: '/characters/cell_1.png' },
+  { id: 2, name: '낯가림세포', story: '낯선 사람 앞엔 숨고 싶지만 마음은 착해요!', mission: '조용히 구석에서 손가락 하트 영상 찍기!', img: '/characters/cell_2.png' },
+  { id: 3, name: '열정세포', story: '시간이 지날수록 파워가 폭발해요!', mission: '구역원 다같이 파이팅 외치는 영상 찍기!', img: '/characters/cell_3.png' },
+  { id: 4, name: '웃음세포', story: '분위기를 즐겁게 만들어요!', mission: '가장 환하게 웃는 5컷 릴레이 영상 찍기!', img: '/characters/cell_4.png' },
+  { id: 5, name: '단합세포', story: '사람들이 모이면 더 강해져요!', mission: '구역원 전원이 한 프레임에 모여 하트 만들기!', img: '/characters/cell_5.png' },
+  { id: 6, name: '눈치세포', story: '지금 이 타이밍 놓치지 않아!', mission: '타이밍 맞춰서 동시에 점프하는 영상 찍기!', img: '/characters/cell_6.png' },
+  { id: 7, name: '귀차니즘세포', story: '움직이기 싫어... 중요한 순간엔 일어나요!', mission: '누워있다가 갑자기 벌떡 일어나는 반전 영상 찍기!', img: '/characters/cell_7.png' },
+  { id: 8, name: '셋로그세포', story: '사진 각도에 진심! 기록을 예쁘게 남겨요!', mission: '제일 독특한 각도로 구역원 촬영하기!', img: '/characters/cell_8.png' },
+  { id: 9, name: '배려세포', story: '누구보다 먼저 챙기는 따뜻한 마음!', mission: '옆 사람 안마해주는 훈훈한 영상 찍기!', img: '/characters/cell_9.png' },
+  { id: 10, name: '승부욕세포', story: '1등만 보여요! 끝까지 포기하지 않아요!', mission: '가위바위보 이길 때까지 도전하는 영상 찍기!', img: '/characters/cell_10.png' },
 ];
 
 const generateCuts = (zoneId: string) => {
