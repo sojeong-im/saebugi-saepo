@@ -10,7 +10,15 @@ export default function ZoneCard({ zone }: ZoneCardProps) {
     <div className="zone-card">
       <div className="zone-header">
         <div className="cell-avatar-container">
-          <img src={zone.cellImage} alt="Cell avatar" className="cell-avatar" />
+          <img 
+            src={zone.cellImage} 
+            alt="Cell avatar" 
+            className="cell-avatar" 
+            onError={(e) => {
+              // Fallback to placeholder if character image is missing
+              (e.target as HTMLImageElement).src = '/cell_joy_1777374728744.png';
+            }}
+          />
         </div>
         <div className="zone-info">
           <h3 className="zone-name">{zone.name}</h3>
