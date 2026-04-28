@@ -1,51 +1,114 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { teamsData } from '../data';
+import { teamsData, cellCharacters } from '../data';
+import { db } from '../firebase';
+import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import './MissionPage.css';
 
 export default function MissionPage() {
-  const [activeTeam, setActiveTeam] = useState<number>(1);
-  const [completedZones, setCompletedZones] = useState<string[]>([]);
-  const [hatchingZones, setHatchingZones] = useState<string[]>([]); // currently animating
+  const [activeTeam, setActiveTeam] = useState<number | null>(null);
+  const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
+  const [zoneMissions, setZoneMissions] = useState<Record<number, boolean>>({});
+  const [hatchingCellId, setHatchingCellId] = useState<number | null>(null);
 
-  const toggleZone = (zoneId: string) => {
-    if (completedZones.includes(zoneId)) {
-      // Un-complete: just remove
-      setCompletedZones(completedZones.filter(id => id !== zoneId));
+  // Subscribe to selected zone's mission status
+  useEffect(() => {
+    if (!selectedZoneId) return;
+
+    const docRef = doc(db, 'missions', selectedZoneId);
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setZoneMissions(docSnap.data() as Record<number, boolean>);
+      } else {
+        setZoneMissions({});
+      }
+    });
+
+    return () => unsubscribe();
+  }, [selectedZoneId]);
+
+  const toggleMission = async (cellId: number) => {
+    if (!selectedZoneId) return;
+
+    const isCurrentlyCompleted = zoneMissions[cellId] || false;
+    
+    if (isCurrentlyCompleted) {
+      // Un-complete
+      const newMissions = { ...zoneMissions, [cellId]: false };
+      await setDoc(doc(db, 'missions', selectedZoneId), newMissions, { merge: true });
     } else {
-      // Start hatch animation, then mark complete after delay
-      setHatchingZones(prev => [...prev, zoneId]);
-      setTimeout(() => {
-        setCompletedZones(prev => [...prev, zoneId]);
-        setHatchingZones(prev => prev.filter(id => id !== zoneId));
-      }, 800); // egg shake duration
+      // Hatching animation
+      setHatchingCellId(cellId);
+      setTimeout(async () => {
+        const newMissions = { ...zoneMissions, [cellId]: true };
+        await setDoc(doc(db, 'missions', selectedZoneId), newMissions, { merge: true });
+        setHatchingCellId(null);
+      }, 800);
     }
   };
 
-  const allZones = teamsData.flatMap(t => t.zones);
-  const totalZones = allZones.length;
-  const completedCount = completedZones.length;
-  const progress = totalZones > 0 ? Math.round((completedCount / totalZones) * 100) : 0;
-  const isAllCompleted = completedCount === totalZones;
+  const currentTeam = teamsData.find(t => t.id === activeTeam);
+  const selectedZone = currentTeam?.zones.find(z => z.id === selectedZoneId);
 
-  const currentTeam = teamsData.find(t => t.id === activeTeam)!;
-  const teamCompleted = currentTeam.zones.filter(z => completedZones.includes(z.id)).length;
+  const completedCount = Object.values(zoneMissions).filter(Boolean).length;
+  const totalCount = cellCharacters.length;
+  const progress = Math.round((completedCount / totalCount) * 100);
+
+  if (!activeTeam) {
+    return (
+      <div className="app-container">
+        <header className="header">
+          <h1 className="logo">세포 미션 보드 🎯</h1>
+          <p className="subtitle">소속 팀을 선택해주세요!</p>
+        </header>
+        <div className="selection-grid">
+          {teamsData.map(team => (
+            <button key={team.id} className="selection-card" onClick={() => setActiveTeam(team.id)}>
+              {team.name}
+            </button>
+          ))}
+        </div>
+        <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+          <Link to="/" className="mission-link-btn" style={{ background: 'var(--border-color)' }}>🏠 홈으로</Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (!selectedZoneId) {
+    return (
+      <div className="app-container">
+        <header className="header">
+          <h1 className="logo">{activeTeam}팀 구역 선택</h1>
+          <p className="subtitle">본인의 구역을 선택해주세요!</p>
+          <button className="mission-link-btn" onClick={() => setActiveTeam(null)} style={{ background: 'var(--border-color)' }}>⬅️ 팀 다시 선택</button>
+        </header>
+        <div className="selection-grid">
+          {currentTeam?.zones.map(zone => (
+            <button key={zone.id} className="selection-card" onClick={() => setSelectedZoneId(zone.id)}>
+              {zone.name}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="app-container">
       <header className="header">
-        <h1 className="logo">세포 미션 보드 🎯</h1>
-        <p className="subtitle">모든 구역의 미션을 달성하고 최고의 팀이 되세요!</p>
-        <Link to="/" className="mission-link-btn" style={{ background: 'var(--border-color)' }}>
-          🏠 메인으로 돌아가기
-        </Link>
+        <h1 className="logo">{selectedZone?.name} 미션</h1>
+        <p className="subtitle">10가지 세포 미션을 모두 완료하고 우승하세요!</p>
+        <div className="header-buttons">
+          <button className="mission-link-btn" onClick={() => setSelectedZoneId(null)} style={{ background: 'var(--border-color)', fontSize: '0.9rem' }}>⬅️ 구역 변경</button>
+          <Link to="/" className="mission-link-btn" style={{ background: 'var(--border-color)', fontSize: '0.9rem' }}>🏠 홈으로</Link>
+        </div>
       </header>
 
-      {/* Overall Progress */}
       <div className="progress-section">
         <div className="progress-label">
-          <span>전체 미션 달성 현황</span>
-          <span className="progress-count">{completedCount} / {totalZones} 구역</span>
+          <span>미션 달성률</span>
+          <span className="progress-count">{completedCount} / {totalCount}</span>
         </div>
         <div className="progress-bar-bg">
           <div className="progress-bar-fill" style={{ width: `${progress}%` }} />
@@ -53,82 +116,50 @@ export default function MissionPage() {
         <p className="progress-percent">{progress}% 달성!</p>
       </div>
 
-      {isAllCompleted && (
+      {completedCount === totalCount && (
         <div className="victory-banner">
-          🎉 모든 구역 미션 달성! 우리가 최고다! 🏆🎉
+          🎉 모든 미션 달성! 우리 구역이 최고다! 🏆🎉
         </div>
       )}
 
-      {/* Team Tabs */}
-      <nav className="team-nav">
-        {teamsData.map(team => {
-          const teamZonesDone = team.zones.filter(z => completedZones.includes(z.id)).length;
-          const isTeamDone = teamZonesDone === team.zones.length;
-          return (
-            <button
-              key={team.id}
-              className={`team-tab ${activeTeam === team.id ? 'active' : ''} ${isTeamDone ? 'team-done' : ''}`}
-              onClick={() => setActiveTeam(team.id)}
-            >
-              {isTeamDone ? '✅ ' : ''}{team.name}
-              <span className="tab-progress"> {teamZonesDone}/{team.zones.length}</span>
-            </button>
-          );
-        })}
-      </nav>
-
-      <div className="team-progress-info">
-        <strong>{currentTeam.name}</strong> — {teamCompleted} / {currentTeam.zones.length} 구역 완료
-      </div>
-
-      {/* Zone Mission Cards */}
       <div className="mission-grid">
-        {currentTeam.zones.map((zone) => {
-          const isCompleted = completedZones.includes(zone.id);
-          const isHatching = hatchingZones.includes(zone.id);
+        {cellCharacters.map(cell => {
+          const isCompleted = zoneMissions[cell.id] || false;
+          const isHatching = hatchingCellId === cell.id;
 
           return (
             <div
-              key={zone.id}
+              key={cell.id}
               className={`mission-card ${isCompleted ? 'completed' : ''}`}
-              onClick={() => !isHatching && toggleZone(zone.id)}
+              onClick={() => !isHatching && toggleMission(cell.id)}
             >
-              <div className="mission-num">구역 {zone.id}</div>
-
-              {/* Avatar: egg or character */}
+              <div className="mission-num">No.{cell.id}</div>
               <div className="mission-avatar-container">
                 {isCompleted ? (
-                  /* Hatched: show character with pop-in animation */
                   <div className="hatch-wrapper">
                     <img
-                      src={zone.cellImage}
-                      alt={zone.cellName}
+                      src={cell.img}
+                      alt={cell.name}
                       className="mission-avatar hatched"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = '/cell_joy_1777374728744.png';
                       }}
                     />
-                    {/* Sparkle elements */}
                     <span className="sparkle s1">✦</span>
                     <span className="sparkle s2">✦</span>
                     <span className="sparkle s3">✦</span>
                     <span className="sparkle s4">★</span>
                   </div>
                 ) : isHatching ? (
-                  /* Hatching: egg shaking */
                   <div className="egg hatching">🥚</div>
                 ) : (
-                  /* Idle: egg */
                   <div className="egg">🥚</div>
                 )}
               </div>
-
               <div className="mission-info">
-                <h3>{isCompleted ? zone.cellName : '???'}</h3>
-                <p className="mission-zone-label">{zone.name}</p>
-                <p className="mission-desc">🎯 {zone.mission}</p>
+                <h3>{isCompleted ? cell.name : '???'}</h3>
+                <p className="mission-desc">🎯 {cell.mission}</p>
               </div>
-
               <div className={`mission-status ${isCompleted ? 'done' : isHatching ? 'hatching-status' : 'todo'}`}>
                 {isCompleted ? '✅ 완료!' : isHatching ? '🥚 부화 중...' : '클릭해서 완료 체크'}
               </div>

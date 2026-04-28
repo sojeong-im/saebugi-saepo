@@ -5,6 +5,43 @@
   margin-top: 1.5rem;
 }
 
+.selection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.selection-card {
+  background: white;
+  border: 3px solid var(--border-color);
+  border-radius: 20px;
+  padding: 2rem 1rem;
+  font-family: var(--font-title);
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.selection-card:hover {
+  transform: translateY(-5px);
+  background: var(--accent-color);
+  box-shadow: var(--shadow-md);
+}
+
+.header-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
 /* Team done state */
 .team-tab.team-done {
   background: #e8f5e9;
