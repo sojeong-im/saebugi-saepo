@@ -145,12 +145,12 @@ body {
 }
 
 .cell-avatar-container {
-  width: 75px;
-  height: 75px;
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
   overflow: hidden;
   border: 3px solid var(--border-color);
-  background: white;
+  background: #f0f8ff;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -160,7 +160,13 @@ body {
 .cell-avatar {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  transition: transform 0.3s ease;
+}
+
+.zone-card:hover .cell-avatar {
+  transform: scale(1.1);
 }
 
 .zone-info {
