@@ -1,18 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap');
 
 :root {
-  --bg-color: #fce4ec; /* Soft pink background */
-  --card-bg: rgba(255, 255, 255, 0.7);
-  --text-main: #333;
-  --text-muted: #666;
-  --primary-color: #f48fb1;
-  --accent-color: #ffb74d;
+  --bg-color: #f6fbfa; /* Light cyan background */
+  --card-bg: #ffffff;
+  --text-main: #0a2d48; /* Deep navy text */
+  --text-muted: #2f6b85;
+  --primary-color: #1a71b8; /* Saebugi Blue */
+  --accent-color: #a0d2da; /* Light cyan border */
+  --border-color: #105973; /* Deep teal border */
+  --pink-accent: #f28b82; /* Harami Pink */
+  --green-accent: #57b894; /* Yadani Green */
+  
   --font-title: 'Jua', sans-serif;
   --font-body: 'Noto Sans KR', sans-serif;
   
-  --shadow-sm: 0 4px 6px rgba(0,0,0,0.05);
-  --shadow-md: 0 10px 15px rgba(0,0,0,0.1);
-  --shadow-hover: 0 20px 25px rgba(0,0,0,0.15);
+  --shadow-sm: 0 4px 0px var(--accent-color);
+  --shadow-md: 0 8px 0px var(--accent-color);
+  --shadow-hover: 0 12px 0px var(--border-color);
 }
 
 * {
@@ -23,7 +27,9 @@
 
 body {
   font-family: var(--font-body);
-  background: linear-gradient(135deg, #fce4ec 0%, #e1bee7 100%);
+  background: var(--bg-color);
+  background-image: radial-gradient(var(--accent-color) 2px, transparent 2px);
+  background-size: 30px 30px;
   color: var(--text-main);
   min-height: 100vh;
   overflow-x: hidden;
@@ -43,9 +49,10 @@ body {
 
 .logo {
   font-family: var(--font-title);
-  font-size: 4rem;
-  color: #d81b60;
-  text-shadow: 2px 2px 0px #fff, 4px 4px 0px rgba(0,0,0,0.1);
+  font-size: 4.5rem;
+  color: var(--primary-color);
+  -webkit-text-stroke: 2px var(--border-color);
+  text-shadow: 4px 4px 0px white, 6px 6px 0px var(--accent-color);
   margin-bottom: 0.5rem;
   letter-spacing: 2px;
 }
@@ -66,28 +73,27 @@ body {
 
 .team-tab {
   background: var(--card-bg);
-  border: 2px solid transparent;
+  border: 3px solid var(--border-color);
   padding: 0.8rem 2rem;
-  border-radius: 50px;
+  border-radius: 30px;
   font-family: var(--font-title);
   font-size: 1.5rem;
   color: var(--text-main);
   cursor: pointer;
   transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
   box-shadow: var(--shadow-sm);
 }
 
 .team-tab:hover {
-  transform: translateY(-3px);
+  transform: translateY(-4px);
   box-shadow: var(--shadow-md);
-  border-color: var(--primary-color);
+  background: var(--accent-color);
 }
 
 .team-tab.active {
   background: var(--primary-color);
   color: white;
-  border-color: white;
+  border-color: var(--border-color);
   box-shadow: var(--shadow-md);
 }
 
@@ -97,12 +103,16 @@ body {
 
 .team-title {
   font-family: var(--font-title);
-  font-size: 2.5rem;
+  font-size: 2.8rem;
   margin-bottom: 2rem;
-  color: #ad1457;
-  border-bottom: 3px dashed #f48fb1;
+  color: var(--border-color);
+  text-shadow: 2px 2px 0px white;
   display: inline-block;
-  padding-bottom: 0.5rem;
+  padding: 0.5rem 2rem;
+  background: white;
+  border: 3px solid var(--border-color);
+  border-radius: 30px;
+  box-shadow: var(--shadow-sm);
 }
 
 .zones-grid {
@@ -113,16 +123,15 @@ body {
 
 .zone-card {
   background: var(--card-bg);
-  backdrop-filter: blur(15px);
   border-radius: 24px;
   padding: 1.5rem;
-  box-shadow: var(--shadow-md);
-  border: 1px solid rgba(255,255,255,0.5);
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+  box-shadow: var(--shadow-sm);
+  border: 4px solid var(--border-color);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .zone-card:hover {
-  transform: translateY(-10px);
+  transform: translateY(-8px);
   box-shadow: var(--shadow-hover);
 }
 
@@ -136,14 +145,16 @@ body {
 }
 
 .cell-avatar-container {
-  width: 70px;
-  height: 70px;
+  width: 75px;
+  height: 75px;
   border-radius: 50%;
   overflow: hidden;
-  border: 3px solid white;
-  box-shadow: var(--shadow-sm);
+  border: 3px solid var(--border-color);
+  background: white;
   flex-shrink: 0;
-  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .cell-avatar {
@@ -158,19 +169,20 @@ body {
 
 .zone-name {
   font-family: var(--font-title);
-  font-size: 1.8rem;
-  color: #880e4f;
-  margin-bottom: 0.2rem;
+  font-size: 1.6rem;
+  color: var(--primary-color);
+  margin-bottom: 0.3rem;
 }
 
 .zone-story {
   font-size: 0.95rem;
-  color: var(--text-muted);
+  color: var(--text-main);
   font-weight: 500;
-  background: rgba(255,255,255,0.5);
-  padding: 0.3rem 0.8rem;
+  background: var(--accent-color);
+  padding: 0.4rem 1rem;
   border-radius: 20px;
   display: inline-block;
+  border: 2px solid var(--border-color);
 }
 
 .cuts-container {
@@ -213,7 +225,8 @@ body {
   border-radius: 12px;
   overflow: hidden;
   position: relative;
-  box-shadow: var(--shadow-sm);
+  background: #e9ecef;
+  border: 3px solid var(--border-color);
 }
 
 .cut-thumbnail {
@@ -276,7 +289,7 @@ body {
 .empty-cut {
   width: 100%;
   height: 100%;
-  background: #eee;
+  background: var(--bg-color);
   display: flex;
   align-items: center;
   justify-content: center;
