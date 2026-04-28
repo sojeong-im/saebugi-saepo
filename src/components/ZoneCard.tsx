@@ -1,4 +1,5 @@
 import type { Zone } from '../data';
+import CutItem from './CutItem';
 
 interface ZoneCardProps {
   zone: Zone;
@@ -19,13 +20,7 @@ export default function ZoneCard({ zone }: ZoneCardProps) {
       
       <div className="cuts-container">
         {zone.cuts.map((cut) => (
-          <div key={cut.id} className="cut-item">
-            <div className="cut-video-wrapper">
-              <img src={cut.image} alt={cut.title} className="cut-thumbnail" />
-              <div className="play-icon">▶</div>
-            </div>
-            <p className="cut-title">{cut.title}</p>
-          </div>
+          <CutItem key={cut.id} cut={cut} />
         ))}
       </div>
     </div>

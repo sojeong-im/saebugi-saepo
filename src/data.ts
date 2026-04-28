@@ -1,6 +1,6 @@
 export interface Cut {
   id: string;
-  image: string;
+  videoUrl?: string;
   title: string;
 }
 
@@ -38,7 +38,7 @@ const stories = [
 const generateCuts = (zoneId: string) => {
   return Array.from({ length: 5 }).map((_, i) => ({
     id: `${zoneId}-cut-${i + 1}`,
-    image: `https://picsum.photos/seed/${zoneId}${i}/300/500`,
+    videoUrl: '',
     title: `Cut ${i + 1}`,
   }));
 };

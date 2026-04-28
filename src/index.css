@@ -271,3 +271,89 @@ body {
   .team-tab { font-size: 1.2rem; padding: 0.6rem 1.5rem; }
   .zones-grid { grid-template-columns: 1fr; }
 }
+
+/* Recording Feature Styles */
+.empty-cut {
+  width: 100%;
+  height: 100%;
+  background: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.record-btn {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-family: var(--font-title);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
+  z-index: 10;
+}
+
+.record-btn:hover {
+  transform: scale(1.05);
+  background: #e91e63;
+}
+
+.record-btn.stop {
+  background: #f44336;
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.recording-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: black;
+}
+
+.recording-video {
+  transform: scaleX(-1); /* Mirror effect for self-recording */
+}
+
+.recording-indicator {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 12px;
+  height: 12px;
+  background: red;
+  border-radius: 50%;
+  animation: blink 1s infinite;
+}
+
+.reset-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.reset-btn:hover {
+  background: rgba(255,0,0,0.8);
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
