@@ -96,3 +96,11 @@
   padding: 5rem;
   color: var(--text-muted);
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .admin-header { padding: 1.5rem 1rem; margin-bottom: 2rem; }
+  .admin-title { font-size: 1.8rem; }
+  .admin-team-title { font-size: 1.5rem; }
+  .admin-zone-grid { grid-template-columns: 1fr; gap: 1rem; }
+}

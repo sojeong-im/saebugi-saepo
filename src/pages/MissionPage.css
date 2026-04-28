@@ -361,3 +361,26 @@
   from { opacity: 0.6; }
   to   { opacity: 1; }
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .selection-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+  .selection-card { padding: 1.5rem 0.5rem; font-size: 1.2rem; }
+  .mission-grid { grid-template-columns: 1fr; gap: 1rem; }
+  .mission-card { padding: 1.2rem; padding-top: 1.8rem; }
+  .mission-avatar-container { width: 100px; height: 100px; }
+  .egg { font-size: 3rem; }
+  .hatch-wrapper { width: 100px; height: 100px; }
+  .mission-info h3 { font-size: 1.3rem; }
+  .mission-desc { font-size: 0.9rem; }
+  .mission-status { font-size: 1.1rem; }
+  .victory-banner { font-size: 1.5rem; padding: 1rem; }
+  .progress-section { padding: 1rem; }
+  .progress-label { font-size: 1rem; }
+}
+
+@media (max-width: 480px) {
+  .selection-grid { grid-template-columns: repeat(2, 1fr); }
+  .selection-card { font-size: 1rem; border-width: 2px; }
+  .logo { font-size: 2.2rem; }
+}

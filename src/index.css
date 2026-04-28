@@ -286,9 +286,21 @@ body {
 
 /* Responsive */
 @media (max-width: 768px) {
-  .logo { font-size: 3rem; }
-  .team-tab { font-size: 1.2rem; padding: 0.6rem 1.5rem; }
-  .zones-grid { grid-template-columns: 1fr; }
+  .app-container { padding: 1rem; }
+  .logo { font-size: 2.8rem; -webkit-text-stroke: 1px var(--border-color); }
+  .subtitle { font-size: 1rem; }
+  .team-tab { font-size: 1.1rem; padding: 0.5rem 1.2rem; }
+  .team-title { font-size: 2rem; padding: 0.4rem 1.2rem; }
+  .zones-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+  .zone-card { padding: 1.2rem; }
+  .cell-avatar-container { width: 80px; height: 80px; }
+  .zone-name { font-size: 1.4rem; }
+}
+
+@media (max-width: 480px) {
+  .logo { font-size: 2.2rem; }
+  .team-nav { gap: 0.5rem; }
+  .team-tab { font-size: 1rem; padding: 0.4rem 1rem; border-width: 2px; }
 }
 
 /* Recording Feature Styles */
