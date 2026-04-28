@@ -37,7 +37,7 @@ export default function AdminPage() {
   return (
     <div className="admin-container">
       <header className="admin-header">
-        <h1 className="admin-title">세포 대작전 관리자 🛠️</h1>
+        <h1 className="admin-title">새.포 관리자 🛠️</h1>
         <p className="admin-subtitle">실시간 미션 현황판 (총 26개 구역)</p>
         <Link to="/" className="mission-link-btn" style={{ background: 'var(--border-color)', color: 'white' }}>🏠 홈으로</Link>
       </header>

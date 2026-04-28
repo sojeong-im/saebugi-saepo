@@ -9,7 +9,7 @@ export default function MainPage() {
   return (
     <div className="app-container">
       <header className="header">
-        <h1 className="logo">셋로그 세포대작전 🐢</h1>
+        <h1 className="logo">새.포 🐢</h1>
         <p className="subtitle">우리 안의 세포들이 움직이면 구역의 단합이 완성된다!</p>
         <Link to="/mission" className="mission-link-btn">
           🎯 세포별 미션 보러가기
@@ -33,7 +33,7 @@ export default function MainPage() {
       </main>
 
       <footer className="footer">
-        <p>SetLog Cell Great Operation © 2026</p>
+        <p>새.포 프로젝트 © 2026</p>
       </footer>
     </div>
   );

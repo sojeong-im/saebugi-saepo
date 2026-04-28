@@ -58,7 +58,7 @@ export default function MissionPage() {
     return (
       <div className="app-container">
         <header className="header">
-          <h1 className="logo">세포 미션 보드 🎯</h1>
+          <h1 className="logo">새.포 🎯</h1>
           <p className="subtitle">소속 팀을 선택해주세요!</p>
         </header>
         <div className="selection-grid">
