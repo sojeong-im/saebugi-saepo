@@ -6,16 +6,22 @@ import './MissionPage.css';
 export default function MissionPage() {
   const [activeTeam, setActiveTeam] = useState<number>(1);
   const [completedZones, setCompletedZones] = useState<string[]>([]);
+  const [hatchingZones, setHatchingZones] = useState<string[]>([]); // currently animating
 
   const toggleZone = (zoneId: string) => {
     if (completedZones.includes(zoneId)) {
+      // Un-complete: just remove
       setCompletedZones(completedZones.filter(id => id !== zoneId));
     } else {
-      setCompletedZones([...completedZones, zoneId]);
+      // Start hatch animation, then mark complete after delay
+      setHatchingZones(prev => [...prev, zoneId]);
+      setTimeout(() => {
+        setCompletedZones(prev => [...prev, zoneId]);
+        setHatchingZones(prev => prev.filter(id => id !== zoneId));
+      }, 800); // egg shake duration
     }
   };
 
-  // Flat list of all zones across all teams for overall progress
   const allZones = teamsData.flatMap(t => t.zones);
   const totalZones = allZones.length;
   const completedCount = completedZones.length;
@@ -71,7 +77,6 @@ export default function MissionPage() {
         })}
       </nav>
 
-      {/* Team Progress */}
       <div className="team-progress-info">
         <strong>{currentTeam.name}</strong> — {teamCompleted} / {currentTeam.zones.length} 구역 완료
       </div>
@@ -80,30 +85,52 @@ export default function MissionPage() {
       <div className="mission-grid">
         {currentTeam.zones.map((zone) => {
           const isCompleted = completedZones.includes(zone.id);
+          const isHatching = hatchingZones.includes(zone.id);
+
           return (
             <div
               key={zone.id}
               className={`mission-card ${isCompleted ? 'completed' : ''}`}
-              onClick={() => toggleZone(zone.id)}
+              onClick={() => !isHatching && toggleZone(zone.id)}
             >
               <div className="mission-num">구역 {zone.id}</div>
+
+              {/* Avatar: egg or character */}
               <div className="mission-avatar-container">
-                <img
-                  src={zone.cellImage}
-                  alt={zone.cellName}
-                  className="mission-avatar"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/cell_joy_1777374728744.png';
-                  }}
-                />
+                {isCompleted ? (
+                  /* Hatched: show character with pop-in animation */
+                  <div className="hatch-wrapper">
+                    <img
+                      src={zone.cellImage}
+                      alt={zone.cellName}
+                      className="mission-avatar hatched"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/cell_joy_1777374728744.png';
+                      }}
+                    />
+                    {/* Sparkle elements */}
+                    <span className="sparkle s1">✦</span>
+                    <span className="sparkle s2">✦</span>
+                    <span className="sparkle s3">✦</span>
+                    <span className="sparkle s4">★</span>
+                  </div>
+                ) : isHatching ? (
+                  /* Hatching: egg shaking */
+                  <div className="egg hatching">🥚</div>
+                ) : (
+                  /* Idle: egg */
+                  <div className="egg">🥚</div>
+                )}
               </div>
+
               <div className="mission-info">
-                <h3>{zone.cellName}</h3>
+                <h3>{isCompleted ? zone.cellName : '???'}</h3>
                 <p className="mission-zone-label">{zone.name}</p>
                 <p className="mission-desc">🎯 {zone.mission}</p>
               </div>
-              <div className={`mission-status ${isCompleted ? 'done' : 'todo'}`}>
-                {isCompleted ? '✅ 완료!' : '클릭해서 완료 체크'}
+
+              <div className={`mission-status ${isCompleted ? 'done' : isHatching ? 'hatching-status' : 'todo'}`}>
+                {isCompleted ? '✅ 완료!' : isHatching ? '🥚 부화 중...' : '클릭해서 완료 체크'}
               </div>
             </div>
           );
