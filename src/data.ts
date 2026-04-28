@@ -9,6 +9,8 @@ export interface Zone {
   name: string;
   story: string;
   cellImage: string;
+  cellName: string;
+  mission: string;
   cuts: Cut[];
 }
 
@@ -24,7 +26,7 @@ export const cellCharacters = [
   { id: 3, name: '열정세포', story: '시간이 지날수록 파워가 폭발해요!', mission: '구역원 다같이 파이팅 외치는 영상 찍기!', img: '/열정세포.png' },
   { id: 4, name: '웃음세포', story: '분위기를 즐겁게 만들어요!', mission: '가장 환하게 웃는 5컷 릴레이 영상 찍기!', img: '/웃음세포.png' },
   { id: 5, name: '단합세포', story: '사람들이 모이면 더 강해져요!', mission: '구역원 전원이 한 프레임에 모여 하트 만들기!', img: '/단합세포.png' },
-  { id: 6, name: '눈치세포', story: '지금 이 타이밍 놓치지 않아!', mission: '타이밍 맞춰서 동시에 점프하는 영상 찍기!', img: '/눈치세포.png' },
+  { id: 6, name: '도파민세포', story: '지금 이 타이밍 놓치지 않아!', mission: '타이밍 맞춰서 동시에 점프하는 영상 찍기!', img: '/도파민세포.png' },
   { id: 7, name: '귀차니즘세포', story: '움직이기 싫어... 중요한 순간엔 일어나요!', mission: '누워있다가 갑자기 벌떡 일어나는 반전 영상 찍기!', img: '/귀차니즘세포.png' },
   { id: 8, name: '셋로그세포', story: '사진 각도에 진심! 기록을 예쁘게 남겨요!', mission: '제일 독특한 각도로 구역원 촬영하기!', img: '/셋로그세포.png' },
   { id: 9, name: '배려세포', story: '누구보다 먼저 챙기는 따뜻한 마음!', mission: '옆 사람 안마해주는 훈훈한 영상 찍기!', img: '/배려세포.png' },
@@ -44,8 +46,10 @@ const generateZones = (teamId: number, count: number) => {
     const character = cellCharacters[i % cellCharacters.length];
     return {
       id: `${teamId}-${i + 1}`,
-      name: `${teamId}-${i + 1}구역 (${character.name})`,
+      name: `${teamId}-${i + 1}구역`,
+      cellName: character.name,
       story: character.story,
+      mission: character.mission,
       cellImage: character.img,
       cuts: generateCuts(`${teamId}-${i + 1}`),
     };

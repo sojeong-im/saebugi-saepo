@@ -22,6 +22,7 @@ export default function ZoneCard({ zone }: ZoneCardProps) {
         </div>
         <div className="zone-info">
           <h3 className="zone-name">{zone.name}</h3>
+          <span className="zone-cell-badge">{zone.cellName}</span>
           <p className="zone-story">{zone.story}</p>
         </div>
       </div>
