@@ -55,6 +55,8 @@ body {
   text-shadow: 4px 4px 0px white, 6px 6px 0px var(--accent-color);
   margin-bottom: 0.5rem;
   letter-spacing: 2px;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 .subtitle {
@@ -286,21 +288,27 @@ body {
 
 /* Responsive */
 @media (max-width: 768px) {
-  .app-container { padding: 1rem; }
-  .logo { font-size: 2.8rem; -webkit-text-stroke: 1px var(--border-color); }
-  .subtitle { font-size: 1rem; }
-  .team-tab { font-size: 1.1rem; padding: 0.5rem 1.2rem; }
-  .team-title { font-size: 2rem; padding: 0.4rem 1.2rem; }
-  .zones-grid { grid-template-columns: 1fr; gap: 1.5rem; }
-  .zone-card { padding: 1.2rem; }
-  .cell-avatar-container { width: 80px; height: 80px; }
-  .zone-name { font-size: 1.4rem; }
+  .app-container { padding: 1rem 0.8rem; }
+  .logo { font-size: 2.6rem; -webkit-text-stroke: 1px var(--border-color); }
+  .subtitle { font-size: 0.95rem; }
+  .team-tab { font-size: 1rem; padding: 0.5rem 1rem; }
+  .team-title { font-size: 1.8rem; padding: 0.4rem 1rem; }
+  .zones-grid { grid-template-columns: 1fr; gap: 1.2rem; }
+  .zone-card { padding: 1rem; }
+  .cell-avatar-container { width: 70px; height: 70px; flex-shrink: 0; }
+  .zone-name { font-size: 1.3rem; }
+  .zone-story { font-size: 0.85rem; }
+  .modal-footer { flex-direction: column; gap: 0.7rem; }
+  .modal-btn { font-size: 1rem; padding: 0.8rem; }
+  .modal-header h3 { font-size: 1.2rem; }
 }
 
 @media (max-width: 480px) {
-  .logo { font-size: 2.2rem; }
-  .team-nav { gap: 0.5rem; }
-  .team-tab { font-size: 1rem; padding: 0.4rem 1rem; border-width: 2px; }
+  .logo { font-size: 2rem; }
+  .team-nav { gap: 0.4rem; }
+  .team-tab { font-size: 0.9rem; padding: 0.4rem 0.8rem; border-width: 2px; }
+  .zone-header { gap: 0.7rem; }
+  .cell-avatar-container { width: 60px; height: 60px; }
 }
 
 /* Recording Feature Styles */

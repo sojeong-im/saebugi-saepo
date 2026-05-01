@@ -226,8 +226,22 @@
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
-  .admin-header { padding: 1.5rem 1rem; margin-bottom: 2rem; }
+  .admin-header { padding: 1.2rem 0.8rem; margin-bottom: 1.5rem; }
   .admin-title { font-size: 1.8rem; }
-  .admin-team-title { font-size: 1.5rem; }
-  .admin-zone-grid { grid-template-columns: 1fr; gap: 1rem; }
+  .admin-team-title { font-size: 1.3rem; }
+  .admin-zone-grid { grid-template-columns: 1fr; gap: 0.8rem; }
+  .admin-summary-grid { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+  .summary-value { font-size: 1.4rem; }
+  .summary-label { font-size: 0.75rem; }
+  .admin-meta-info { flex-direction: column; gap: 0.3rem; }
+  .mission-link-btn { font-size: 0.95rem; padding: 0.6rem 1rem; }
+}
+
+@media (max-width: 480px) {
+  .admin-title { font-size: 1.5rem; }
+  .admin-summary-grid { gap: 0.4rem; }
+  .summary-item { padding: 0.7rem 0.5rem; }
+  .summary-value { font-size: 1.2rem; }
+  .admin-zone-name { font-size: 0.95rem; }
+  .admin-zone-count { font-size: 0.9rem; }
 }
