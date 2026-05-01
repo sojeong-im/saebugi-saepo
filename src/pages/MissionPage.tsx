@@ -39,7 +39,7 @@ export default function MissionPage() {
 
     setIsInitialLoading(true);
     const docRef = doc(db, 'missions', selectedZoneId);
-    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+    const unsubscribe = onSnapshot(docRef, { includeMetadataChanges: true }, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
         const formatted: Record<string, boolean> = {};
@@ -50,6 +50,7 @@ export default function MissionPage() {
       } else {
         setZoneMissions({});
       }
+      // Hide loading as soon as we get ANY data (cache or server)
       setIsInitialLoading(false);
     }, (err) => {
       console.error("Firestore Error:", err);

@@ -17,7 +17,7 @@ export default function AdminPage() {
     if (!isAuthenticated) return;
 
     setLoading(true);
-    const unsubscribe = onSnapshot(collection(db, 'missions'), (querySnapshot) => {
+    const unsubscribe = onSnapshot(collection(db, 'missions'), { includeMetadataChanges: true }, (querySnapshot) => {
       const data: Record<string, Record<string, boolean>> = {};
       querySnapshot.forEach((doc) => {
         const docData = doc.data();
@@ -31,7 +31,7 @@ export default function AdminPage() {
       console.log("Firestore Data Received:", data);
       setAllMissions(data);
       setRawCount(querySnapshot.size);
-      setLoading(false);
+      setLoading(false); // Show immediately from cache or server
       setLastUpdated(new Date().toLocaleTimeString());
     }, (error) => {
       console.error("Firestore Error:", error);
