@@ -15,16 +15,36 @@ export default function CutItem({ cut }: CutItemProps) {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
+  const getSupportedMimeType = () => {
+    const types = [
+      'video/webm;codecs=vp9,opus',
+      'video/webm;codecs=vp8,vorbis',
+      'video/webm',
+      'video/mp4'
+    ];
+    for (const type of types) {
+      if (MediaRecorder.isTypeSupported(type)) {
+        return type;
+      }
+    }
+    return '';
+  };
+
   const startRecording = async () => {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'user' }, 
+        video: { 
+          facingMode: 'user',
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        }, 
         audio: true 
       });
       setStream(mediaStream);
       setIsRecording(true);
 
-      const mediaRecorder = new MediaRecorder(mediaStream);
+      const mimeType = getSupportedMimeType();
+      const mediaRecorder = new MediaRecorder(mediaStream, { mimeType });
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
 
@@ -35,7 +55,7 @@ export default function CutItem({ cut }: CutItemProps) {
       };
 
       mediaRecorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'video/webm' });
+        const blob = new Blob(chunksRef.current, { type: mediaRecorder.mimeType });
         const url = URL.createObjectURL(blob);
         setVideoUrl(url);
       };
@@ -43,7 +63,7 @@ export default function CutItem({ cut }: CutItemProps) {
       mediaRecorder.start();
     } catch (err) {
       console.error("카메라 접근 에러:", err);
-      alert("카메라 및 마이크 권한이 필요합니다.");
+      alert("카메라 및 마이크 권한이 필요합니다. 브라우저 설정에서 권한을 확인해주세요.");
     }
   };
 
@@ -76,7 +96,15 @@ export default function CutItem({ cut }: CutItemProps) {
       <div className="cut-video-wrapper" onClick={() => videoUrl && setIsPreviewOpen(true)}>
         {videoUrl ? (
           <div className="video-preview-state">
-            <video src={videoUrl} className="cut-thumbnail" muted loop autoPlay playsInline />
+            <video 
+              src={videoUrl} 
+              className="cut-thumbnail" 
+              muted 
+              loop 
+              autoPlay 
+              playsInline 
+              onLoadedData={(e) => (e.target as HTMLVideoElement).play()}
+            />
             <div className="video-overlay">
               <span>▶️ 보기</span>
             </div>
@@ -110,7 +138,13 @@ export default function CutItem({ cut }: CutItemProps) {
               <h3>영상 확인</h3>
               <button className="close-btn" onClick={() => setIsPreviewOpen(false)}>×</button>
             </header>
-            <video src={videoUrl} controls autoPlay className="modal-video" />
+            <video 
+              src={videoUrl} 
+              controls 
+              autoPlay 
+              playsInline
+              className="modal-video" 
+            />
             <div className="modal-footer">
               <button className="modal-btn secondary" onClick={() => setIsPreviewOpen(false)}>확인</button>
               <button className="modal-btn danger" onClick={(e) => { resetVideo(e); setIsPreviewOpen(false); }}>다시 촬영하기</button>
