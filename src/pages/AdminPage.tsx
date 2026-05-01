@@ -46,6 +46,17 @@ export default function AdminPage() {
     return '#f0f0f0'; // Not Started
   };
 
+  // Total Summary stats
+  const totalZones = 26;
+  const completedZonesCount = Object.keys(allMissions).filter(id => {
+    const missions = allMissions[id] || {};
+    return Object.values(missions).filter(Boolean).length === 10;
+  }).length;
+  const inProgressZonesCount = Object.keys(allMissions).filter(id => {
+    const count = Object.values(allMissions[id] || {}).filter(Boolean).length;
+    return count > 0 && count < 10;
+  }).length;
+
   if (!isAuthenticated) {
     return (
       <div className="admin-login-container">
@@ -75,7 +86,23 @@ export default function AdminPage() {
       <header className="admin-header">
         <h1 className="admin-title">새.포 관리자 🛠️</h1>
         <p className="admin-subtitle">실시간 미션 현황판 (총 26개 구역)</p>
-        <Link to="/" className="mission-link-btn" style={{ background: 'var(--border-color)', color: 'white' }}>🏠 홈으로</Link>
+        
+        <div className="admin-summary-grid">
+          <div className="summary-item">
+            <span className="summary-label">전체 구역</span>
+            <span className="summary-value">{totalZones}</span>
+          </div>
+          <div className="summary-item completed">
+            <span className="summary-label">완료 구역</span>
+            <span className="summary-value">{completedZonesCount}</span>
+          </div>
+          <div className="summary-item in-progress">
+            <span className="summary-label">진행 중</span>
+            <span className="summary-value">{inProgressZonesCount}</span>
+          </div>
+        </div>
+
+        <Link to="/" className="mission-link-btn" style={{ background: 'var(--border-color)', color: 'white', marginTop: '1.5rem' }}>🏠 홈으로</Link>
       </header>
 
       {loading ? (
@@ -88,14 +115,18 @@ export default function AdminPage() {
               <div className="admin-zone-grid">
                 {team.zones.map(zone => {
                   const count = getMissionCount(zone.id);
+                  const isFullyCompleted = count === 10;
                   return (
                     <div 
                       key={zone.id} 
-                      className="admin-zone-card"
+                      className={`admin-zone-card ${isFullyCompleted ? 'fully-done' : ''}`}
                       style={{ borderLeft: `8px solid ${getZoneStatusColor(zone.id)}` }}
                     >
                       <div className="admin-zone-info">
-                        <span className="admin-zone-name">{zone.name}</span>
+                        <div className="admin-zone-meta">
+                          <span className="admin-zone-name">{zone.name}</span>
+                          <span className="admin-cell-name">{zone.cellName}</span>
+                        </div>
                         <span className="admin-zone-count">{count} / 10</span>
                       </div>
                       <div className="admin-mission-dots">
@@ -103,10 +134,11 @@ export default function AdminPage() {
                           <div 
                             key={cell.id} 
                             className={`mission-dot ${allMissions[zone.id]?.[cell.id] ? 'done' : ''}`}
-                            title={cell.name}
+                            title={`${cell.name}: ${cell.mission}`}
                           />
                         ))}
                       </div>
+                      {isFullyCompleted && <div className="complete-badge">완료! 🏆</div>}
                     </div>
                   );
                 })}
