@@ -48,6 +48,26 @@
   box-shadow: var(--shadow-md);
 }
 
+.admin-meta-info {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.admin-debug-section {
+  margin-top: 5rem;
+  padding: 2rem;
+  background: #f0f0f0;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  color: #666;
+  text-align: center;
+}
+
 .admin-title {
   font-family: var(--font-title);
   font-size: 2.5rem;

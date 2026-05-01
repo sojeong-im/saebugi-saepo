@@ -11,14 +11,15 @@ export default function AdminPage() {
   const [password, setPassword] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string>('');
+  const [rawCount, setRawCount] = useState(0);
 
   useEffect(() => {
     if (!isAuthenticated) return;
 
+    setLoading(true);
     const unsubscribe = onSnapshot(collection(db, 'missions'), (querySnapshot) => {
       const data: Record<string, Record<string, boolean>> = {};
       querySnapshot.forEach((doc) => {
-        // Force all keys to be strings for consistency
         const docData = doc.data();
         const formattedData: Record<string, boolean> = {};
         Object.entries(docData).forEach(([key, value]) => {
@@ -26,12 +27,16 @@ export default function AdminPage() {
         });
         data[doc.id] = formattedData;
       });
+      
+      console.log("Firestore Data Received:", data);
       setAllMissions(data);
+      setRawCount(querySnapshot.size);
       setLoading(false);
       setLastUpdated(new Date().toLocaleTimeString());
     }, (error) => {
       console.error("Firestore Error:", error);
       alert("데이터를 가져오는 중 오류가 발생했습니다: " + error.message);
+      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -101,7 +106,10 @@ export default function AdminPage() {
       <header className="admin-header">
         <h1 className="admin-title">새.포 관리자 🛠️</h1>
         <p className="admin-subtitle">실시간 미션 현황판 (총 26개 구역)</p>
-        {lastUpdated && <p className="last-updated">최근 업데이트: {lastUpdated}</p>}
+        <div className="admin-meta-info">
+          <span>최근 업데이트: {lastUpdated || '없음'}</span>
+          <span>수신 데이터: {rawCount}건</span>
+        </div>
         
         <div className="admin-summary-grid">
           <div className="summary-item">
@@ -163,6 +171,14 @@ export default function AdminPage() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Raw Data Debug View - Only shows if data is missing but keys exist */}
+      {rawCount > 0 && Object.keys(allMissions).length > 0 && (
+        <div className="admin-debug-section">
+          <h3>수신 데이터 ID 목록 (디버그용):</h3>
+          <p>{Object.keys(allMissions).join(', ')}</p>
         </div>
       )}
     </div>
