@@ -17,7 +17,7 @@ export default function AdminPage() {
     if (!isAuthenticated) return;
 
     setLoading(true);
-    const unsubscribe = onSnapshot(collection(db, 'missions'), { includeMetadataChanges: true }, (querySnapshot) => {
+    const unsubscribe = onSnapshot(collection(db, 'missions'), (querySnapshot) => {
       const data: Record<string, Record<string, boolean>> = {};
       querySnapshot.forEach((doc) => {
         const docData = doc.data();

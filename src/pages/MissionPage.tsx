@@ -39,7 +39,7 @@ export default function MissionPage() {
 
     setIsInitialLoading(true);
     const docRef = doc(db, 'missions', selectedZoneId);
-    const unsubscribe = onSnapshot(docRef, { includeMetadataChanges: true }, (docSnap) => {
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
         const formatted: Record<string, boolean> = {};
