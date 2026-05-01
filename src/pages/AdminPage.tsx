@@ -6,23 +6,36 @@ import { collection, onSnapshot } from 'firebase/firestore';
 import './AdminPage.css';
 
 export default function AdminPage() {
-  const [allMissions, setAllMissions] = useState<Record<string, Record<number, boolean>>>({});
+  const [allMissions, setAllMissions] = useState<Record<string, Record<string, boolean>>>({});
   const [loading, setLoading] = useState(true);
   const [password, setPassword] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<string>('');
 
   useEffect(() => {
+    if (!isAuthenticated) return;
+
     const unsubscribe = onSnapshot(collection(db, 'missions'), (querySnapshot) => {
-      const data: Record<string, Record<number, boolean>> = {};
+      const data: Record<string, Record<string, boolean>> = {};
       querySnapshot.forEach((doc) => {
-        data[doc.id] = doc.data() as Record<number, boolean>;
+        // Force all keys to be strings for consistency
+        const docData = doc.data();
+        const formattedData: Record<string, boolean> = {};
+        Object.entries(docData).forEach(([key, value]) => {
+          formattedData[key.toString()] = !!value;
+        });
+        data[doc.id] = formattedData;
       });
       setAllMissions(data);
       setLoading(false);
+      setLastUpdated(new Date().toLocaleTimeString());
+    }, (error) => {
+      console.error("Firestore Error:", error);
+      alert("데이터를 가져오는 중 오류가 발생했습니다: " + error.message);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [isAuthenticated]);
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,11 +61,13 @@ export default function AdminPage() {
 
   // Total Summary stats
   const totalZones = 26;
-  const completedZonesCount = Object.keys(allMissions).filter(id => {
+  const zoneList = Object.keys(allMissions);
+  const completedZonesCount = zoneList.filter(id => {
     const missions = allMissions[id] || {};
     return Object.values(missions).filter(Boolean).length === 10;
   }).length;
-  const inProgressZonesCount = Object.keys(allMissions).filter(id => {
+  
+  const inProgressZonesCount = zoneList.filter(id => {
     const count = Object.values(allMissions[id] || {}).filter(Boolean).length;
     return count > 0 && count < 10;
   }).length;
@@ -86,6 +101,7 @@ export default function AdminPage() {
       <header className="admin-header">
         <h1 className="admin-title">새.포 관리자 🛠️</h1>
         <p className="admin-subtitle">실시간 미션 현황판 (총 26개 구역)</p>
+        {lastUpdated && <p className="last-updated">최근 업데이트: {lastUpdated}</p>}
         
         <div className="admin-summary-grid">
           <div className="summary-item">
@@ -116,6 +132,8 @@ export default function AdminPage() {
                 {team.zones.map(zone => {
                   const count = getMissionCount(zone.id);
                   const isFullyCompleted = count === 10;
+                  const zoneData = allMissions[zone.id] || {};
+                  
                   return (
                     <div 
                       key={zone.id} 
@@ -133,7 +151,7 @@ export default function AdminPage() {
                         {cellCharacters.map(cell => (
                           <div 
                             key={cell.id} 
-                            className={`mission-dot ${allMissions[zone.id]?.[cell.id] ? 'done' : ''}`}
+                            className={`mission-dot ${zoneData[cell.id.toString()] ? 'done' : ''}`}
                             title={`${cell.name}: ${cell.mission}`}
                           />
                         ))}

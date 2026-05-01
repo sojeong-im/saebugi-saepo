@@ -8,7 +8,7 @@ import './MissionPage.css';
 export default function MissionPage() {
   const [activeTeam, setActiveTeam] = useState<number | null>(null);
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
-  const [zoneMissions, setZoneMissions] = useState<Record<number, boolean>>({});
+  const [zoneMissions, setZoneMissions] = useState<Record<string, boolean>>({});
   const [hatchingCellId, setHatchingCellId] = useState<number | null>(null);
 
   // Subscribe to selected zone's mission status
@@ -18,10 +18,17 @@ export default function MissionPage() {
     const docRef = doc(db, 'missions', selectedZoneId);
     const unsubscribe = onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {
-        setZoneMissions(docSnap.data() as Record<number, boolean>);
+        const data = docSnap.data();
+        const formatted: Record<string, boolean> = {};
+        Object.entries(data).forEach(([key, value]) => {
+          formatted[key.toString()] = !!value;
+        });
+        setZoneMissions(formatted);
       } else {
         setZoneMissions({});
       }
+    }, (err) => {
+      console.error("Firestore Error:", err);
     });
 
     return () => unsubscribe();
@@ -30,17 +37,18 @@ export default function MissionPage() {
   const toggleMission = async (cellId: number) => {
     if (!selectedZoneId) return;
 
-    const isCurrentlyCompleted = zoneMissions[cellId] || false;
+    const cellIdStr = cellId.toString();
+    const isCurrentlyCompleted = zoneMissions[cellIdStr] || false;
     
     if (isCurrentlyCompleted) {
       // Un-complete
-      const newMissions = { ...zoneMissions, [cellId]: false };
+      const newMissions = { ...zoneMissions, [cellIdStr]: false };
       await setDoc(doc(db, 'missions', selectedZoneId), newMissions, { merge: true });
     } else {
       // Hatching animation
       setHatchingCellId(cellId);
       setTimeout(async () => {
-        const newMissions = { ...zoneMissions, [cellId]: true };
+        const newMissions = { ...zoneMissions, [cellIdStr]: true };
         await setDoc(doc(db, 'missions', selectedZoneId), newMissions, { merge: true });
         setHatchingCellId(null);
       }, 800);
@@ -81,7 +89,7 @@ export default function MissionPage() {
         <header className="header">
           <h1 className="logo">{activeTeam}팀 구역 선택</h1>
           <p className="subtitle">본인의 구역을 선택해주세요!</p>
-          <button className="mission-link-btn" onClick={() => setActiveTeam(null)} style={{ background: 'var(--border-color)' }}>⬅️ 팀 다시 선택</button>
+          <button className="mission-link-btn" onClick={() => { setActiveTeam(null); setSelectedZoneId(null); }} style={{ background: 'var(--border-color)' }}>⬅️ 팀 다시 선택</button>
         </header>
         <div className="selection-grid">
           {currentTeam?.zones.map(zone => (
@@ -124,7 +132,7 @@ export default function MissionPage() {
 
       <div className="mission-grid">
         {cellCharacters.map(cell => {
-          const isCompleted = zoneMissions[cell.id] || false;
+          const isCompleted = zoneMissions[cell.id.toString()] || false;
           const isHatching = hatchingCellId === cell.id;
 
           return (
