@@ -17,7 +17,6 @@ export default function MissionPage() {
   const [zoneMissions, setZoneMissions] = useState<Record<string, boolean>>({});
   const [hatchingCellId, setHatchingCellId] = useState<number | null>(null);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
-  const [isSyncing, setIsSyncing] = useState(false);
 
   // Persist selections
   useEffect(() => {
@@ -60,30 +59,30 @@ export default function MissionPage() {
     return () => unsubscribe();
   }, [selectedZoneId]);
 
-  const toggleMission = async (cellId: number) => {
+  const toggleMission = (cellId: number) => {
     if (!selectedZoneId) return;
 
     const cellIdStr = cellId.toString();
     const isCurrentlyCompleted = zoneMissions[cellIdStr] || false;
-    
-    setIsSyncing(true);
-    try {
-      // Use setDoc with merge: true for all updates to ensure reliability
-      await setDoc(doc(db, 'missions', selectedZoneId), {
-        [cellIdStr]: !isCurrentlyCompleted
-      }, { merge: true });
-      
-      if (!isCurrentlyCompleted) {
-        // Hatching animation only when completing
-        setHatchingCellId(cellId);
-        setTimeout(() => setHatchingCellId(null), 800);
-      }
-    } catch (e) {
-      console.error("Sync failed:", e);
-      alert("데이터 저장에 실패했습니다. 인터넷 연결을 확인해주세요.");
-    } finally {
-      setIsSyncing(false);
+    const newValue = !isCurrentlyCompleted;
+
+    // ✅ Optimistic update: update UI immediately, no waiting
+    setZoneMissions(prev => ({ ...prev, [cellIdStr]: newValue }));
+
+    if (newValue) {
+      // Hatching animation when completing
+      setHatchingCellId(cellId);
+      setTimeout(() => setHatchingCellId(null), 800);
     }
+
+    // Fire-and-forget: sync to Firebase in background
+    setDoc(doc(db, 'missions', selectedZoneId), {
+      [cellIdStr]: newValue
+    }, { merge: true }).catch((e) => {
+      console.error("Sync failed, reverting:", e);
+      // Revert on failure
+      setZoneMissions(prev => ({ ...prev, [cellIdStr]: isCurrentlyCompleted }));
+    });
   };
 
   const currentTeam = teamsData.find(t => t.id === activeTeam);
@@ -165,7 +164,7 @@ export default function MissionPage() {
 
       <div className="progress-section">
         <div className="progress-label">
-          <span>미션 달성률 {isSyncing && <span className="sync-tag">저장 중...</span>}</span>
+          <span>미션 달성률</span>
           <span className="progress-count">{completedCount} / {totalCount}</span>
         </div>
         <div className="progress-bar-bg">
@@ -188,8 +187,8 @@ export default function MissionPage() {
           return (
             <div
               key={cell.id}
-              className={`mission-card ${isCompleted ? 'completed' : ''} ${isSyncing ? 'syncing' : ''}`}
-              onClick={() => !isSyncing && toggleMission(cell.id)}
+              className={`mission-card ${isCompleted ? 'completed' : ''}`}
+              onClick={() => !isHatching && toggleMission(cell.id)}
             >
               <div className="mission-num">No.{cell.id}</div>
               <div className="mission-avatar-container">
