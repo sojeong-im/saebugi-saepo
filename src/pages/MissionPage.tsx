@@ -2,11 +2,10 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { teamsData, cellCharacters } from '../data';
 import { db } from '../firebase';
-import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import './MissionPage.css';
 
 export default function MissionPage() {
-  // Use localStorage to persist selection across refreshes
   const [activeTeam, setActiveTeam] = useState<number | null>(() => {
     const saved = localStorage.getItem('saebugi_activeTeam');
     return saved ? parseInt(saved) : null;
@@ -17,7 +16,8 @@ export default function MissionPage() {
   
   const [zoneMissions, setZoneMissions] = useState<Record<string, boolean>>({});
   const [hatchingCellId, setHatchingCellId] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   // Persist selections
   useEffect(() => {
@@ -34,10 +34,11 @@ export default function MissionPage() {
   useEffect(() => {
     if (!selectedZoneId) {
       setZoneMissions({});
+      setIsInitialLoading(false);
       return;
     }
 
-    setLoading(true);
+    setIsInitialLoading(true);
     const docRef = doc(db, 'missions', selectedZoneId);
     const unsubscribe = onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {
@@ -50,10 +51,10 @@ export default function MissionPage() {
       } else {
         setZoneMissions({});
       }
-      setLoading(false);
+      setIsInitialLoading(false);
     }, (err) => {
       console.error("Firestore Error:", err);
-      setLoading(false);
+      setIsInitialLoading(false);
     });
 
     return () => unsubscribe();
@@ -65,29 +66,23 @@ export default function MissionPage() {
     const cellIdStr = cellId.toString();
     const isCurrentlyCompleted = zoneMissions[cellIdStr] || false;
     
+    setIsSyncing(true);
     try {
-      if (isCurrentlyCompleted) {
-        // Un-complete: Use updateDoc to target only this specific field
-        await updateDoc(doc(db, 'missions', selectedZoneId), {
-          [cellIdStr]: false
-        });
-      } else {
-        // Hatching animation
-        setHatchingCellId(cellId);
-        setTimeout(async () => {
-          // Use setDoc with merge: true to ensure the doc exists
-          await setDoc(doc(db, 'missions', selectedZoneId), {
-            [cellIdStr]: true
-          }, { merge: true });
-          setHatchingCellId(null);
-        }, 800);
-      }
-    } catch (e) {
-      console.error("Update failed, attempting setDoc fallback:", e);
-      // Fallback for first time document creation
+      // Use setDoc with merge: true for all updates to ensure reliability
       await setDoc(doc(db, 'missions', selectedZoneId), {
         [cellIdStr]: !isCurrentlyCompleted
       }, { merge: true });
+      
+      if (!isCurrentlyCompleted) {
+        // Hatching animation only when completing
+        setHatchingCellId(cellId);
+        setTimeout(() => setHatchingCellId(null), 800);
+      }
+    } catch (e) {
+      console.error("Sync failed:", e);
+      alert("데이터 저장에 실패했습니다. 인터넷 연결을 확인해주세요.");
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -99,10 +94,12 @@ export default function MissionPage() {
   const progress = Math.round((completedCount / totalCount) * 100);
 
   const clearSelection = () => {
-    setActiveTeam(null);
-    setSelectedZoneId(null);
-    localStorage.removeItem('saebugi_activeTeam');
-    localStorage.removeItem('saebugi_selectedZoneId');
+    if (window.confirm("구역 선택을 초기화하시겠습니까? (미션 데이터는 서버에 보존됩니다)")) {
+      setActiveTeam(null);
+      setSelectedZoneId(null);
+      localStorage.removeItem('saebugi_activeTeam');
+      localStorage.removeItem('saebugi_selectedZoneId');
+    }
   };
 
   if (!activeTeam) {
@@ -145,6 +142,15 @@ export default function MissionPage() {
     );
   }
 
+  if (isInitialLoading) {
+    return (
+      <div className="app-container loading-state">
+        <div className="loader"></div>
+        <p>미션 데이터를 불러오는 중...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="app-container">
       <header className="header">
@@ -152,15 +158,15 @@ export default function MissionPage() {
         <p className="subtitle">10가지 세포 미션을 모두 완료하고 우승하세요!</p>
         <div className="header-buttons">
           <button className="mission-link-btn" onClick={() => setSelectedZoneId(null)} style={{ background: 'var(--border-color)', fontSize: '0.9rem' }}>⬅️ 구역 변경</button>
-          <button className="mission-link-btn" onClick={clearSelection} style={{ background: 'var(--border-color)', fontSize: '0.9rem' }}>🔄 처음부터 다시</button>
+          <button className="mission-link-btn" onClick={clearSelection} style={{ background: 'var(--border-color)', fontSize: '0.9rem' }}>🔄 로그아웃</button>
           <Link to="/" className="mission-link-btn" style={{ background: 'var(--border-color)', fontSize: '0.9rem' }}>🏠 홈으로</Link>
         </div>
       </header>
 
       <div className="progress-section">
         <div className="progress-label">
-          <span>미션 달성률</span>
-          <span className="progress-count">{loading ? '...' : completedCount} / {totalCount}</span>
+          <span>미션 달성률 {isSyncing && <span className="sync-tag">저장 중...</span>}</span>
+          <span className="progress-count">{completedCount} / {totalCount}</span>
         </div>
         <div className="progress-bar-bg">
           <div className="progress-bar-fill" style={{ width: `${progress}%` }} />
@@ -182,8 +188,8 @@ export default function MissionPage() {
           return (
             <div
               key={cell.id}
-              className={`mission-card ${isCompleted ? 'completed' : ''}`}
-              onClick={() => !isHatching && toggleMission(cell.id)}
+              className={`mission-card ${isCompleted ? 'completed' : ''} ${isSyncing ? 'syncing' : ''}`}
+              onClick={() => !isSyncing && toggleMission(cell.id)}
             >
               <div className="mission-num">No.{cell.id}</div>
               <div className="mission-avatar-container">
