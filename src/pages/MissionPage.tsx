@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { teamsData, cellCharacters } from '../data';
 import { db } from '../firebase';
-import { doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { doc, onSnapshot, setDoc, serverTimestamp } from 'firebase/firestore';
 import './MissionPage.css';
 
 export default function MissionPage() {
@@ -77,9 +77,13 @@ export default function MissionPage() {
     }
 
     // Fire-and-forget: sync to Firebase in background
-    setDoc(doc(db, 'missions', selectedZoneId), {
-      [cellIdStr]: newValue
-    }, { merge: true }).catch((e) => {
+    const updateData: Record<string, unknown> = { [cellIdStr]: newValue };
+    if (newValue) {
+      // Record timestamp when mission is completed for ranking
+      updateData[`_ts_${cellIdStr}`] = serverTimestamp();
+      updateData['_lastCompleted'] = serverTimestamp();
+    }
+    setDoc(doc(db, 'missions', selectedZoneId), updateData, { merge: true }).catch((e) => {
       console.error("Sync failed, reverting:", e);
       // Revert on failure
       setZoneMissions(prev => ({ ...prev, [cellIdStr]: isCurrentlyCompleted }));
